@@ -12,89 +12,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-import { Settings, MapPin, Clock, Wrench, Search, Plus, AlertCircle } from "lucide-react";
+import { Settings, MapPin, Clock, Wrench, Search, Plus, AlertCircle, Edit, Trash2 } from "lucide-react";
+import { useAlmoxarifado } from "@/contexts/AlmoxarifadoContext";
+import { BombaModal } from "@/components/modals/BombaModal";
 
 export default function Bombas() {
+  const { bombas, removerBomba } = useAlmoxarifado();
   const [searchTerm, setSearchTerm] = useState("");
+  const [bombaModalOpen, setBombaModalOpen] = useState(false);
+  const [editingBomba, setEditingBomba] = useState(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
-  const mockPumps = [
-    {
-      id: "B001",
-      serie: "BC-3HP-2024-001",
-      fabricante: "Bomba Tech",
-      modelo: "Centrífuga CT-3000",
-      potencia: "3 HP",
-      capacidade: "500 L/min",
-      status: "Operando",
-      localizacao: "ETA Central - Bomba Principal",
-      endereco: null,
-      responsavel: "João Silva",
-      dataInstalacao: "2024-01-15",
-      horasUso: "2.340h",
-      proximaManutencao: "2024-12-15"
-    },
-    {
-      id: "B002",
-      serie: "BC-2HP-2023-015",
-      fabricante: "AquaTech",
-      modelo: "Submersível AS-2000",
-      potencia: "2 HP",
-      capacidade: "300 L/min",
-      status: "Operando",
-      localizacao: "Poço Artesiano Norte",
-      endereco: null,
-      responsavel: "Maria Santos",
-      dataInstalacao: "2023-08-20",
-      horasUso: "1.890h",
-      proximaManutencao: "2024-11-20"
-    },
-    {
-      id: "B003",
-      serie: "BC-5HP-2022-008",
-      fabricante: "HidroPower",
-      modelo: "Industrial HI-5000",
-      potencia: "5 HP",
-      capacidade: "800 L/min",
-      status: "Manutenção",
-      localizacao: "Oficina de Manutenção",
-      endereco: null,
-      responsavel: "Carlos Tech",
-      dataInstalacao: "2022-03-10",
-      horasUso: "3.120h",
-      proximaManutencao: "Em manutenção"
-    },
-    {
-      id: "B004",
-      serie: "BC-3HP-2024-002",
-      fabricante: "Bomba Tech",
-      modelo: "Centrífuga CT-3000",
-      potencia: "3 HP",
-      capacidade: "500 L/min",
-      status: "Estoque",
-      localizacao: "Almoxarifado",
-      endereco: "A2-P1-N3-001",
-      responsavel: null,
-      dataInstalacao: null,
-      horasUso: "0h",
-      proximaManutencao: "N/A"
-    },
-    {
-      id: "B005",
-      serie: "BC-1HP-2024-003",
-      fabricante: "MicroPump",
-      modelo: "Residencial MR-1000",
-      potencia: "1 HP",
-      capacidade: "150 L/min",
-      status: "Estoque",
-      localizacao: "Almoxarifado",
-      endereco: "A2-P2-N1-005",
-      responsavel: null,
-      dataInstalacao: null,
-      horasUso: "0h",
-      proximaManutencao: "N/A"
-    }
-  ];
+  const handleNovaBomba = () => {
+    setEditingBomba(null);
+    setModalMode('create');
+    setBombaModalOpen(true);
+  };
+
+  const handleEditarBomba = (bomba: any) => {
+    setEditingBomba(bomba);
+    setModalMode('edit');
+    setBombaModalOpen(true);
+  };
+
+  const handleRemoverBomba = (id: string) => {
+    removerBomba(id);
+  };
+
+  const mockPumps = bombas;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -136,7 +93,7 @@ export default function Bombas() {
             Controle e rastreamento de bombas de água
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary-hover">
+        <Button className="bg-primary hover:bg-primary-hover" onClick={handleNovaBomba}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Bomba
         </Button>
@@ -278,12 +235,36 @@ export default function Bombas() {
                         <TableCell className="font-mono">{pump.horasUso}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              Detalhes
+                            <Button variant="outline" size="sm" onClick={() => handleEditarBomba(pump)}>
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
                             </Button>
                             <Button variant="outline" size="sm">
+                              <MapPin className="h-4 w-4 mr-1" />
                               Localizar
                             </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  Remover
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja remover a bomba "{pump.id}"? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleRemoverBomba(pump.id)} className="bg-destructive hover:bg-destructive/90">
+                                    Remover
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -338,6 +319,13 @@ export default function Bombas() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <BombaModal 
+        open={bombaModalOpen} 
+        onOpenChange={setBombaModalOpen}
+        bomba={editingBomba}
+        mode={modalMode}
+      />
     </div>
   );
 }

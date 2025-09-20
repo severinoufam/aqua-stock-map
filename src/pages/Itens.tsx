@@ -18,72 +18,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-import { Search, Plus, Package, AlertTriangle, CheckCircle } from "lucide-react";
+import { Search, Plus, Package, AlertTriangle, CheckCircle, Edit, MapPin, Trash2 } from "lucide-react";
+import { useAlmoxarifado } from "@/contexts/AlmoxarifadoContext";
+import { ItemModal } from "@/components/modals/ItemModal";
 
 export default function Itens() {
+  const { itens, removerItem } = useAlmoxarifado();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [itemModalOpen, setItemModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
-  const mockItems = [
-    {
-      codigo: "HID001",
-      nome: "Bomba Centrífuga 3HP",
-      categoria: "Bombas",
-      unidade: "unidade",
-      fornecedor: "Bomba Tech",
-      qtdAtual: 2,
-      qtdMinima: 5,
-      endereco: "A2-P1-N3-001",
-      status: "baixo"
-    },
-    {
-      codigo: "HID002",
-      nome: "Conexão PVC 50mm",
-      categoria: "Hidráulica",
-      unidade: "unidade",
-      fornecedor: "Hidro Parts",
-      qtdAtual: 45,
-      qtdMinima: 20,
-      endereco: "B1-P2-N1-005",
-      status: "ok"
-    },
-    {
-      codigo: "ELE001",
-      nome: "Cabo Flexível 4mm",
-      categoria: "Elétrica",
-      unidade: "metro",
-      fornecedor: "ElectroMax",
-      qtdAtual: 180,
-      qtdMinima: 100,
-      endereco: "C3-P1-N2-010",
-      status: "ok"
-    },
-    {
-      codigo: "FER001",
-      nome: "Chave de Fenda 8mm",
-      categoria: "Ferramentas",
-      unidade: "unidade",
-      fornecedor: "Tool Master",
-      qtdAtual: 8,
-      qtdMinima: 10,
-      endereco: "D1-P3-N1-002",
-      status: "baixo"
-    },
-    {
-      codigo: "EPI001",
-      nome: "Capacete de Segurança",
-      categoria: "EPI",
-      unidade: "unidade",
-      fornecedor: "Safety First",
-      qtdAtual: 25,
-      qtdMinima: 15,
-      endereco: "E2-P1-N4-001",
-      status: "ok"
-    }
-  ];
+  const handleNovoItem = () => {
+    setEditingItem(null);
+    setModalMode('create');
+    setItemModalOpen(true);
+  };
 
-  const getStatusBadge = (status: string, qtdAtual: number, qtdMinima: number) => {
+  const handleEditarItem = (item: any) => {
+    setEditingItem(item);
+    setModalMode('edit');
+    setItemModalOpen(true);
+  };
+
+  const handleRemoverItem = (codigo: string) => {
+    removerItem(codigo);
+  };
+
+  const mockItems = itens;
+
+  const getStatusBadge = (qtdAtual: number, qtdMinima: number) => {
     if (qtdAtual === 0) {
       return <Badge className="bg-destructive text-destructive-foreground">Esgotado</Badge>;
     } else if (qtdAtual <= qtdMinima) {
@@ -120,7 +97,7 @@ export default function Itens() {
             Controle total do estoque de materiais e equipamentos
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary-hover">
+        <Button className="bg-primary hover:bg-primary-hover" onClick={handleNovoItem}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Item
         </Button>
@@ -206,16 +183,40 @@ export default function Itens() {
                       {item.endereco}
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(item.status, item.qtdAtual, item.qtdMinima)}
+                      {getStatusBadge(item.qtdAtual, item.qtdMinima)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEditarItem(item)}>
+                          <Edit className="h-4 w-4 mr-1" />
                           Editar
                         </Button>
                         <Button variant="outline" size="sm">
+                          <MapPin className="h-4 w-4 mr-1" />
                           Localizar
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Remover
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja remover o item "{item.nome}"? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleRemoverItem(item.codigo)} className="bg-destructive hover:bg-destructive/90">
+                                Remover
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -225,6 +226,13 @@ export default function Itens() {
           </div>
         </CardContent>
       </Card>
+
+      <ItemModal 
+        open={itemModalOpen} 
+        onOpenChange={setItemModalOpen}
+        item={editingItem}
+        mode={modalMode}
+      />
     </div>
   );
 }

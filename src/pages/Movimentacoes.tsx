@@ -14,87 +14,21 @@ import {
 } from "@/components/ui/table";
 
 import { TrendingUp, ArrowUp, ArrowDown, Search, Plus, FileText } from "lucide-react";
+import { useAlmoxarifado } from "@/contexts/AlmoxarifadoContext";
+import { MovimentacaoModal } from "@/components/modals/MovimentacaoModal";
 
 export default function Movimentacoes() {
+  const { movimentacoes } = useAlmoxarifado();
   const [searchTerm, setSearchTerm] = useState("");
+  const [movimentacaoModalOpen, setMovimentacaoModalOpen] = useState(false);
+  const [tipoMovimentacao, setTipoMovimentacao] = useState<'Entrada' | 'Saída'>('Entrada');
 
-  const mockMovimentacoes = [
-    {
-      id: "MOV001",
-      tipo: "Entrada",
-      item: "Bomba Centrífuga 3HP",
-      codigo: "HID001",
-      quantidade: 2,
-      unidade: "unidade",
-      responsavel: "João Silva",
-      setor: "Almoxarifado",
-      data: "2024-01-20",
-      hora: "14:30",
-      notaFiscal: "NF-2024-001",
-      fornecedor: "Bomba Tech",
-      observacao: "Reposição de estoque"
-    },
-    {
-      id: "MOV002",
-      tipo: "Saída",
-      item: "Conexão PVC 50mm",
-      codigo: "HID002",
-      quantidade: 15,
-      unidade: "unidade",
-      responsavel: "Maria Santos",
-      setor: "Manutenção ETA",
-      data: "2024-01-19",
-      hora: "09:15",
-      notaFiscal: null,
-      fornecedor: null,
-      observacao: "Manutenção preventiva bomba B001"
-    },
-    {
-      id: "MOV003",
-      tipo: "Entrada",
-      item: "Cabo Flexível 4mm",
-      codigo: "ELE001",
-      quantidade: 100,
-      unidade: "metro",
-      responsavel: "Carlos Tech",
-      setor: "Almoxarifado",
-      data: "2024-01-18",
-      hora: "16:45",
-      notaFiscal: "NF-2024-002",
-      fornecedor: "ElectroMax",
-      observacao: "Compra programada"
-    },
-    {
-      id: "MOV004",
-      tipo: "Saída",
-      item: "Capacete de Segurança",
-      codigo: "EPI001",
-      quantidade: 5,
-      unidade: "unidade",
-      responsavel: "Ana Costa",
-      setor: "Equipe de Campo",
-      data: "2024-01-17",
-      hora: "08:00",
-      notaFiscal: null,
-      fornecedor: null,
-      observacao: "Reposição EPIs equipe"
-    },
-    {
-      id: "MOV005",
-      tipo: "Entrada",
-      item: "Filtro de Areia",
-      codigo: "FIL001",
-      quantidade: 8,
-      unidade: "unidade",
-      responsavel: "João Silva",
-      setor: "Almoxarifado",
-      data: "2024-01-16",
-      hora: "11:20",
-      notaFiscal: "NF-2024-003",
-      fornecedor: "Filtros SAAE",
-      observacao: "Estoque de segurança"
-    }
-  ];
+  const handleNovaMovimentacao = (tipo: 'Entrada' | 'Saída' = 'Entrada') => {
+    setTipoMovimentacao(tipo);
+    setMovimentacaoModalOpen(true);
+  };
+
+  const mockMovimentacoes = movimentacoes;
 
   const getTipoColor = (tipo: string) => {
     return tipo === "Entrada" 
@@ -109,8 +43,8 @@ export default function Movimentacoes() {
   };
 
   const filteredMovimentacoes = mockMovimentacoes.filter(mov =>
-    mov.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    mov.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    mov.itemNome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    mov.itemCodigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     mov.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -131,9 +65,13 @@ export default function Movimentacoes() {
             <FileText className="mr-2 h-4 w-4" />
             Relatório
           </Button>
-          <Button className="bg-primary hover:bg-primary-hover">
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Movimentação
+          <Button className="bg-success hover:bg-success/90" onClick={() => handleNovaMovimentacao('Entrada')}>
+            <ArrowUp className="mr-2 h-4 w-4" />
+            Entrada
+          </Button>
+          <Button className="bg-warning hover:bg-warning/90" onClick={() => handleNovaMovimentacao('Saída')}>
+            <ArrowDown className="mr-2 h-4 w-4" />
+            Saída
           </Button>
         </div>
       </div>
@@ -238,8 +176,8 @@ export default function Movimentacoes() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{mov.item}</p>
-                            <p className="text-sm text-muted-foreground font-mono">{mov.codigo}</p>
+                            <p className="font-medium">{mov.itemNome}</p>
+                            <p className="text-sm text-muted-foreground font-mono">{mov.itemCodigo}</p>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -311,6 +249,12 @@ export default function Movimentacoes() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <MovimentacaoModal 
+        open={movimentacaoModalOpen} 
+        onOpenChange={setMovimentacaoModalOpen}
+        tipo={tipoMovimentacao}
+      />
     </div>
   );
 }

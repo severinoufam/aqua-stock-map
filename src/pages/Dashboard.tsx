@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useAlmoxarifado } from "@/contexts/AlmoxarifadoContext";
 
 import {
   Package,
@@ -13,10 +14,23 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
+  const { 
+    getTotalItens, 
+    getBombasPorStatus, 
+    getItensComEstoqueBaixo, 
+    getMovimentacoesPorPeriodo,
+    bombas 
+  } = useAlmoxarifado();
+
+  const itensComEstoqueBaixo = getItensComEstoqueBaixo();
+  const bombasOperando = getBombasPorStatus('Operando');
+  const bombasManutencao = getBombasPorStatus('Manutenção');
+  const movimentacoesHoje = getMovimentacoesPorPeriodo(1);
+
   const statsCards = [
     {
       title: "Total de Itens",
-      value: "2,847",
+      value: getTotalItens().toString(),
       description: "Itens cadastrados",
       icon: Package,
       trend: "+12% este mês",
@@ -24,15 +38,15 @@ export default function Dashboard() {
     },
     {
       title: "Bombas Ativas",
-      value: "47",
+      value: bombasOperando.length.toString(),
       description: "Em operação",
       icon: Settings,
-      trend: "3 em manutenção",
+      trend: `${bombasManutencao.length} em manutenção`,
       color: "text-success",
     },
     {
       title: "Movimentações Hoje",
-      value: "23",
+      value: movimentacoesHoje.length.toString(),
       description: "Entradas e saídas",
       icon: TrendingUp,
       trend: "+8% vs ontem",
@@ -40,7 +54,7 @@ export default function Dashboard() {
     },
     {
       title: "Alertas Ativos",
-      value: "12",
+      value: itensComEstoqueBaixo.length.toString(),
       description: "Estoque baixo",
       icon: AlertTriangle,
       trend: "Requer atenção",
@@ -48,18 +62,12 @@ export default function Dashboard() {
     },
   ];
 
-  const recentAlerts = [
-    { item: "Bomba Centrífuga 3HP", location: "Corredor A, Prateleira 2", level: "Crítico" },
-    { item: "Conexão PVC 50mm", location: "Corredor B, Prateleira 1", level: "Baixo" },
-    { item: "Filtro de Areia", location: "Corredor C, Prateleira 3", level: "Baixo" },
-  ];
-
-  const pumpStatus = [
-    { id: "B001", location: "ETA Central", status: "Operando", hours: "2.340h" },
-    { id: "B002", location: "Poço Artesiano Norte", status: "Operando", hours: "1.890h" },
-    { id: "B003", location: "Oficina", status: "Manutenção", hours: "3.120h" },
-    { id: "B004", location: "Almoxarifado - A2-P1-N3", status: "Estoque", hours: "0h" },
-  ];
+  const pumpStatus = bombas.slice(0, 4).map(bomba => ({
+    id: bomba.id,
+    location: bomba.localizacao,
+    status: bomba.status,
+    hours: bomba.horasUso
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -70,12 +78,10 @@ export default function Dashboard() {
     }
   };
 
-  const getAlertColor = (level: string) => {
-    switch (level) {
-      case "Crítico": return "bg-destructive text-destructive-foreground";
-      case "Baixo": return "bg-warning text-warning-foreground";
-      default: return "bg-muted text-muted-foreground";
-    }
+  const getAlertColor = (qtdAtual: number, qtdMinima: number) => {
+    if (qtdAtual === 0) return "bg-destructive text-destructive-foreground";
+    if (qtdAtual <= qtdMinima) return "bg-warning text-warning-foreground";
+    return "bg-muted text-muted-foreground";
   };
 
   return (
@@ -120,17 +126,26 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {recentAlerts.map((alert, index) => (
+              {itensComEstoqueBaixo.slice(0, 3).map((item, index) => (
                 <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
                   <div className="flex-1">
-                    <p className="font-medium">{alert.item}</p>
-                    <p className="text-sm text-muted-foreground">{alert.location}</p>
+                    <p className="font-medium">{item.nome}</p>
+                    <p className="text-sm text-muted-foreground">{item.endereco}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Disponível: {item.qtdAtual} {item.unidade} (Mín: {item.qtdMinima})
+                    </p>
                   </div>
-                  <Badge className={getAlertColor(alert.level)}>
-                    {alert.level}
+                  <Badge className={getAlertColor(item.qtdAtual, item.qtdMinima)}>
+                    {item.qtdAtual === 0 ? "Esgotado" : "Baixo"}
                   </Badge>
                 </div>
               ))}
+              {itensComEstoqueBaixo.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-success" />
+                  <p>Todos os itens estão com estoque adequado!</p>
+                </div>
+              )}
             </div>
             <Button variant="outline" className="w-full mt-4">
               Ver Todos os Alertas

@@ -10,6 +10,7 @@ import Bombas from "./pages/Bombas";
 import Movimentacoes from "./pages/Movimentacoes";
 import Localizacao from "./pages/Localizacao";
 import NotFound from "./pages/NotFound";
+import { AlmoxarifadoProvider } from "@/contexts/AlmoxarifadoContext";
 
 const queryClient = new QueryClient();
 
@@ -18,19 +19,21 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/itens" element={<Itens />} />
-            <Route path="/bombas" element={<Bombas />} />
-            <Route path="/movimentacoes" element={<Movimentacoes />} />
-            <Route path="/localizacao" element={<Localizacao />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
+      <AlmoxarifadoProvider>
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/itens" element={<Itens />} />
+              <Route path="/bombas" element={<Bombas />} />
+              <Route path="/movimentacoes" element={<Movimentacoes />} />
+              <Route path="/localizacao" element={<Localizacao />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </AlmoxarifadoProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
