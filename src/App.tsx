@@ -9,6 +9,9 @@ import Itens from "./pages/Itens";
 import Bombas from "./pages/Bombas";
 import Movimentacoes from "./pages/Movimentacoes";
 import Localizacao from "./pages/Localizacao";
+import Relatorios from "./pages/Relatorios";
+import Usuarios from "./pages/Usuarios";
+import Alertas from "./pages/Alertas";
 import NotFound from "./pages/NotFound";
 import { AlmoxarifadoProvider } from "@/contexts/AlmoxarifadoContext";
 
@@ -28,7 +31,9 @@ const App = () => (
               <Route path="/bombas" element={<Bombas />} />
               <Route path="/movimentacoes" element={<Movimentacoes />} />
               <Route path="/localizacao" element={<Localizacao />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/relatorios" element={<Relatorios />} />
+              <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/alertas" element={<Alertas />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
