@@ -102,7 +102,12 @@ export default function Localizacao() {
             Mapeamento de itens no almoxarifado e bombas em campo
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary-hover">
+        <Button 
+          className="bg-primary hover:bg-primary-hover"
+          onClick={() => {
+            alert('Mapa Geral do Sistema\n\n🏢 Almoxarifado: 4 endereços ativos\n📍 Bombas em Campo: 3 instaladas\n\nVisualize os detalhes nas abas abaixo.');
+          }}
+        >
           <Navigation className="mr-2 h-4 w-4" />
           Mapa Geral
         </Button>
@@ -252,11 +257,23 @@ export default function Localizacao() {
                       </div>
                       
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            alert(`Coordenadas: ${bomba.coordenadas}\nLocal: ${bomba.localizacao}`);
+                          }}
+                        >
                           <Navigation className="h-4 w-4 mr-1" />
                           Ver no Mapa
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            alert(`Bomba: ${bomba.nome}\nID: ${bomba.id}\nLocal: ${bomba.localizacao}\nCoordenadas: ${bomba.coordenadas}\nResponsável: ${bomba.responsavel}\nStatus: ${bomba.status}\nInstalação: ${bomba.instalacao}`);
+                          }}
+                        >
                           Detalhes
                         </Button>
                       </div>
@@ -298,7 +315,12 @@ export default function Localizacao() {
                   ))}
                 </div>
                 
-                <Button className="mt-4 bg-primary hover:bg-primary-hover">
+                <Button 
+                  className="mt-4 bg-primary hover:bg-primary-hover"
+                  onClick={() => {
+                    alert('Mapa Interativo 3D\n\nCorredores: A, B, C, D, E\nPrateleiras por corredor: 3\nNíveis por prateleira: 4\n\nRecurso de visualização 3D será implementado em breve com WebGL.');
+                  }}
+                >
                   Abrir Mapa Completo
                 </Button>
               </div>

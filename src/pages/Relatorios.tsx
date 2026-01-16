@@ -195,7 +195,39 @@ export default function Relatorios() {
               <SelectItem value="365">Último ano</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              const relatorio = `
+RELATÓRIO DO ALMOXARIFADO SAAE
+==============================
+Data: ${new Date().toLocaleDateString('pt-BR')}
+Período: Últimos ${periodo} dias
+
+RESUMO GERAL
+-------------
+Total de Itens Cadastrados: ${estatisticas.totalItens}
+Total de Unidades em Estoque: ${estatisticas.totalUnidades}
+Total de Bombas: ${estatisticas.totalBombas}
+Bombas em Operação: ${estatisticas.bombasOperando}
+Total de Movimentações: ${estatisticas.totalMovimentacoes}
+Alertas Pendentes: ${estatisticas.alertasPendentes}
+Itens com Estoque Baixo: ${estatisticas.itensEstoqueBaixo}
+
+ITENS POR CATEGORIA
+-------------------
+${itensPorCategoria.map(c => `${c.categoria}: ${c.itens} itens (${c.quantidade} unidades)`).join('\n')}
+
+BOMBAS POR STATUS
+-----------------
+${bombasPorStatus.map(s => `${s.status}: ${s.quantidade}`).join('\n')}
+
+==============================
+Relatório gerado automaticamente
+              `;
+              alert(relatorio);
+            }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Exportar PDF
           </Button>
