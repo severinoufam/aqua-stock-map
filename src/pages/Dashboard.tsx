@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAlmoxarifado } from "@/contexts/AlmoxarifadoContext";
+import { useNavigate } from "react-router-dom";
 
 import {
   Package,
@@ -9,11 +10,10 @@ import {
   TrendingUp,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  Wrench,
 } from "lucide-react";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { 
     getTotalItens, 
     getBombasPorStatus, 
@@ -35,6 +35,7 @@ export default function Dashboard() {
       icon: Package,
       trend: "+12% este mês",
       color: "text-primary",
+      onClick: () => navigate('/itens'),
     },
     {
       title: "Bombas Ativas",
@@ -43,6 +44,7 @@ export default function Dashboard() {
       icon: Settings,
       trend: `${bombasManutencao.length} em manutenção`,
       color: "text-success",
+      onClick: () => navigate('/bombas'),
     },
     {
       title: "Movimentações Hoje",
@@ -51,6 +53,7 @@ export default function Dashboard() {
       icon: TrendingUp,
       trend: "+8% vs ontem",
       color: "text-warning",
+      onClick: () => navigate('/movimentacoes'),
     },
     {
       title: "Alertas Ativos",
@@ -59,6 +62,7 @@ export default function Dashboard() {
       icon: AlertTriangle,
       trend: "Requer atenção",
       color: "text-destructive",
+      onClick: () => navigate('/alertas'),
     },
   ];
 
@@ -95,7 +99,11 @@ export default function Dashboard() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statsCards.map((card) => (
-          <Card key={card.title}>
+          <Card 
+            key={card.title} 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={card.onClick}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 {card.title}
@@ -127,7 +135,11 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-3">
               {itensComEstoqueBaixo.slice(0, 3).map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                <div 
+                  key={index} 
+                  className="flex items-center justify-between p-3 border border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => navigate('/itens')}
+                >
                   <div className="flex-1">
                     <p className="font-medium">{item.nome}</p>
                     <p className="text-sm text-muted-foreground">{item.endereco}</p>
@@ -147,7 +159,11 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <Button variant="outline" className="w-full mt-4">
+            <Button 
+              variant="outline" 
+              className="w-full mt-4"
+              onClick={() => navigate('/alertas')}
+            >
               Ver Todos os Alertas
             </Button>
           </CardContent>
@@ -166,7 +182,11 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-3">
               {pumpStatus.map((pump) => (
-                <div key={pump.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                <div 
+                  key={pump.id} 
+                  className="flex items-center justify-between p-3 border border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => navigate('/bombas')}
+                >
                   <div className="flex-1">
                     <p className="font-medium">Bomba {pump.id}</p>
                     <p className="text-sm text-muted-foreground">{pump.location}</p>
@@ -178,7 +198,11 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <Button variant="outline" className="w-full mt-4">
+            <Button 
+              variant="outline" 
+              className="w-full mt-4"
+              onClick={() => navigate('/bombas')}
+            >
               Gerenciar Bombas
             </Button>
           </CardContent>

@@ -239,7 +239,9 @@ export default function Bombas() {
                               <Edit className="h-4 w-4 mr-1" />
                               Editar
                             </Button>
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" onClick={() => {
+                              alert(`Localização: ${pump.localizacao}\n${pump.endereco ? `Endereço: ${pump.endereco}` : ''}\nResponsável: ${pump.responsavel || 'N/A'}`);
+                            }}>
                               <MapPin className="h-4 w-4 mr-1" />
                               Localizar
                             </Button>
@@ -276,45 +278,110 @@ export default function Bombas() {
           </Card>
         </TabsContent>
 
-        {/* Outros tabs teriam conteúdo similar, filtrado por status */}
-        <TabsContent value="operando">
+        <TabsContent value="operando" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-success">
                 <Settings className="h-5 w-5" />
-                Bombas em Operação
+                Bombas em Operação ({pumpsByStatus.operando.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Lista filtrada das bombas atualmente em operação...</p>
+              <div className="space-y-4">
+                {pumpsByStatus.operando.map((pump) => (
+                  <div key={pump.id} className="p-4 border border-border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold">{pump.id} - {pump.modelo}</h3>
+                        <p className="text-sm text-muted-foreground">{pump.fabricante}</p>
+                        <p className="text-sm mt-2"><strong>Local:</strong> {pump.localizacao}</p>
+                        <p className="text-sm"><strong>Responsável:</strong> {pump.responsavel}</p>
+                        <p className="text-sm"><strong>Horas de uso:</strong> {pump.horasUso}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEditarBomba(pump)}>
+                          <Edit className="h-4 w-4 mr-1" />Editar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {pumpsByStatus.operando.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma bomba em operação</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="manutencao">
+        <TabsContent value="manutencao" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-warning">
                 <Wrench className="h-5 w-5" />
-                Bombas em Manutenção
+                Bombas em Manutenção ({pumpsByStatus.manutencao.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Lista filtrada das bombas em manutenção...</p>
+              <div className="space-y-4">
+                {pumpsByStatus.manutencao.map((pump) => (
+                  <div key={pump.id} className="p-4 border border-warning/50 bg-warning/5 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold">{pump.id} - {pump.modelo}</h3>
+                        <p className="text-sm text-muted-foreground">{pump.fabricante}</p>
+                        <p className="text-sm mt-2"><strong>Local:</strong> {pump.localizacao}</p>
+                        <p className="text-sm"><strong>Responsável:</strong> {pump.responsavel || 'N/A'}</p>
+                        <p className="text-sm"><strong>Horas de uso:</strong> {pump.horasUso}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEditarBomba(pump)}>
+                          <Edit className="h-4 w-4 mr-1" />Editar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {pumpsByStatus.manutencao.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma bomba em manutenção</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="estoque">
+        <TabsContent value="estoque" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Bombas no Estoque
+                Bombas no Estoque ({pumpsByStatus.estoque.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Lista filtrada das bombas no almoxarifado...</p>
+              <div className="space-y-4">
+                {pumpsByStatus.estoque.map((pump) => (
+                  <div key={pump.id} className="p-4 border border-border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold">{pump.id} - {pump.modelo}</h3>
+                        <p className="text-sm text-muted-foreground">{pump.fabricante}</p>
+                        <p className="text-sm mt-2"><strong>Local:</strong> {pump.localizacao}</p>
+                        {pump.endereco && <p className="text-sm font-mono"><strong>Endereço:</strong> {pump.endereco}</p>}
+                        <p className="text-sm"><strong>Potência:</strong> {pump.potencia} | <strong>Capacidade:</strong> {pump.capacidade}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEditarBomba(pump)}>
+                          <Edit className="h-4 w-4 mr-1" />Editar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {pumpsByStatus.estoque.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma bomba no estoque</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

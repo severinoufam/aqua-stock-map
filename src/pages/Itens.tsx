@@ -29,18 +29,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
-import { Search, Plus, Package, AlertTriangle, CheckCircle, Edit, MapPin, Trash2 } from "lucide-react";
-import { useAlmoxarifado } from "@/contexts/AlmoxarifadoContext";
+import { Search, Plus, Package, Edit, MapPin, Trash2, Navigation } from "lucide-react";
+import { useAlmoxarifado, type Item } from "@/contexts/AlmoxarifadoContext";
 import { ItemModal } from "@/components/modals/ItemModal";
 
 export default function Itens() {
+  const navigate = useNavigate();
   const { itens, removerItem } = useAlmoxarifado();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+
+  const [localizacaoModalOpen, setLocalizacaoModalOpen] = useState(false);
+  const [itemLocalizar, setItemLocalizar] = useState<Item | null>(null);
 
   const handleNovoItem = () => {
     setEditingItem(null);
@@ -56,6 +68,11 @@ export default function Itens() {
 
   const handleRemoverItem = (codigo: string) => {
     removerItem(codigo);
+  };
+
+  const handleLocalizarItem = (item: Item) => {
+    setItemLocalizar(item);
+    setLocalizacaoModalOpen(true);
   };
 
   const mockItems = itens;
@@ -191,7 +208,7 @@ export default function Itens() {
                           <Edit className="h-4 w-4 mr-1" />
                           Editar
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleLocalizarItem(item)}>
                           <MapPin className="h-4 w-4 mr-1" />
                           Localizar
                         </Button>
@@ -233,6 +250,81 @@ export default function Itens() {
         item={editingItem}
         mode={modalMode}
       />
+
+      {/* Modal de Localização */}
+      <Dialog open={localizacaoModalOpen} onOpenChange={setLocalizacaoModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Navigation className="h-5 w-5 text-primary" />
+              Localização do Item
+            </DialogTitle>
+          </DialogHeader>
+          {itemLocalizar && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <h3 className="font-semibold text-lg">{itemLocalizar.nome}</h3>
+                <p className="text-sm text-muted-foreground">Código: {itemLocalizar.codigo}</p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <strong>Endereço:</strong>
+                  <span className="font-mono bg-primary/10 px-2 py-1 rounded">{itemLocalizar.endereco}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Corredor</p>
+                    <p className="font-bold text-xl">{itemLocalizar.endereco.split('-')[0]}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Prateleira</p>
+                    <p className="font-bold text-xl">{itemLocalizar.endereco.split('-')[1]}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Nível</p>
+                    <p className="font-bold text-xl">{itemLocalizar.endereco.split('-')[2]}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Posição</p>
+                    <p className="font-bold text-xl">{itemLocalizar.endereco.split('-')[3]}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-sm">
+                    <strong>Estoque Atual:</strong> {itemLocalizar.qtdAtual} {itemLocalizar.unidade}
+                  </p>
+                  <p className="text-sm">
+                    <strong>Quantidade Mínima:</strong> {itemLocalizar.qtdMinima} {itemLocalizar.unidade}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  className="flex-1" 
+                  variant="outline"
+                  onClick={() => {
+                    navigate('/localizacao');
+                    setLocalizacaoModalOpen(false);
+                  }}
+                >
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Ver no Mapa
+                </Button>
+                <Button 
+                  className="flex-1" 
+                  onClick={() => setLocalizacaoModalOpen(false)}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

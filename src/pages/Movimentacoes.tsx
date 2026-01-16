@@ -61,7 +61,12 @@ export default function Movimentacoes() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              alert('Relatório de Movimentações\n\nTotal: ' + movimentacoes.length + ' movimentações\nEntradas: ' + entradas.length + '\nSaídas: ' + saidas.length + '\n\nExportação para PDF será implementada em breve.');
+            }}
+          >
             <FileText className="mr-2 h-4 w-4" />
             Relatório
           </Button>
@@ -208,7 +213,13 @@ export default function Movimentacoes() {
                           </p>
                         </TableCell>
                         <TableCell>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              alert(`Detalhes da Movimentação\n\nID: ${mov.id}\nTipo: ${mov.tipo}\nItem: ${mov.itemNome} (${mov.itemCodigo})\nQuantidade: ${mov.quantidade} ${mov.unidade}\nResponsável: ${mov.responsavel}\nSetor: ${mov.setor}\nData: ${mov.data} às ${mov.hora}\n${mov.notaFiscal ? `NF: ${mov.notaFiscal}` : ''}\n\nObservação: ${mov.observacao || 'Nenhuma'}`);
+                            }}
+                          >
                             Detalhes
                           </Button>
                         </TableCell>
@@ -221,30 +232,84 @@ export default function Movimentacoes() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="entradas">
+        <TabsContent value="entradas" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-success">
                 <ArrowUp className="h-5 w-5" />
-                Entradas no Almoxarifado
+                Entradas no Almoxarifado ({entradas.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Lista filtrada das entradas de materiais...</p>
+              <div className="space-y-4">
+                {entradas.map((mov) => (
+                  <div key={mov.id} className="p-4 border border-success/30 bg-success/5 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-success text-success-foreground">
+                            <ArrowUp className="h-3 w-3 mr-1" />Entrada
+                          </Badge>
+                          <span className="font-mono text-sm">{mov.id}</span>
+                        </div>
+                        <h3 className="font-semibold mt-2">{mov.itemNome}</h3>
+                        <p className="text-sm text-muted-foreground">Código: {mov.itemCodigo}</p>
+                        <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
+                          <p><strong>Quantidade:</strong> {mov.quantidade} {mov.unidade}</p>
+                          <p><strong>Responsável:</strong> {mov.responsavel}</p>
+                          <p><strong>Data:</strong> {mov.data} às {mov.hora}</p>
+                          {mov.notaFiscal && <p><strong>NF:</strong> {mov.notaFiscal}</p>}
+                        </div>
+                        {mov.observacao && <p className="text-sm text-muted-foreground mt-2">{mov.observacao}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {entradas.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma entrada registrada</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="saidas">
+        <TabsContent value="saidas" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-warning">
                 <ArrowDown className="h-5 w-5" />
-                Saídas do Almoxarifado
+                Saídas do Almoxarifado ({saidas.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Lista filtrada das saídas de materiais...</p>
+              <div className="space-y-4">
+                {saidas.map((mov) => (
+                  <div key={mov.id} className="p-4 border border-warning/30 bg-warning/5 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-warning text-warning-foreground">
+                            <ArrowDown className="h-3 w-3 mr-1" />Saída
+                          </Badge>
+                          <span className="font-mono text-sm">{mov.id}</span>
+                        </div>
+                        <h3 className="font-semibold mt-2">{mov.itemNome}</h3>
+                        <p className="text-sm text-muted-foreground">Código: {mov.itemCodigo}</p>
+                        <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
+                          <p><strong>Quantidade:</strong> {mov.quantidade} {mov.unidade}</p>
+                          <p><strong>Responsável:</strong> {mov.responsavel}</p>
+                          <p><strong>Setor:</strong> {mov.setor}</p>
+                          <p><strong>Data:</strong> {mov.data} às {mov.hora}</p>
+                        </div>
+                        {mov.observacao && <p className="text-sm text-muted-foreground mt-2">{mov.observacao}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {saidas.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma saída registrada</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
